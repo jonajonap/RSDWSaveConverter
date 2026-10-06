@@ -23,4 +23,42 @@ public sealed class DragonwildsSaveCodecTests
     {
         Assert.Throws<InvalidDataException>(() => DragonwildsSaveCodec.Wrap("NOPE"u8));
     }
+
+    [Fact]
+    public void ConvertsDedicatedServerSaveToLocalSession()
+    {
+        var samplePath = Path.Combine(Directory.GetCurrentDirectory(), "partidaTest", "Arepita.sav.bak");
+        if (!File.Exists(samplePath))
+        {
+            var parentSample = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "partidaTest", "Arepita.sav.bak");
+            if (File.Exists(parentSample))
+            {
+                samplePath = parentSample;
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        var raw = File.ReadAllBytes(samplePath);
+        var metaBefore = DragonwildsSaveCodec.ReadMetadata(raw);
+        Assert.True(metaBefore.IsDedicatedServer);
+        Assert.True(metaBefore.HasPassword);
+        Assert.Equal(3, metaBefore.SessionPrivacy);
+
+        var converted = DragonwildsSaveCodec.ConvertToLocalSession(raw);
+        var metaAfter = DragonwildsSaveCodec.ReadMetadata(converted);
+
+        Assert.False(metaAfter.IsDedicatedServer);
+        Assert.False(metaAfter.HasPassword);
+        Assert.Equal(0, metaAfter.SessionPrivacy);
+        Assert.Equal("Arepita", metaAfter.WorldName);
+
+        // Verify wrapping works without error
+        var wrapped = DragonwildsSaveCodec.Wrap(converted);
+        var unwrapped = DragonwildsSaveCodec.Unwrap(wrapped);
+        Assert.Equal(converted, unwrapped);
+    }
 }
+

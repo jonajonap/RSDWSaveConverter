@@ -121,6 +121,8 @@ public partial class MainWindow : Window
         _loadedSave = null;
         FileNameText.Text = "No save selected";
         FileDetailsText.Text = "";
+        ServerOptionsPanel.IsVisible = false;
+        ConvertServerSaveCheckBox.IsChecked = false;
         PopulateDestinations();
 
         await RunBusyAsync("Reading save...", async () =>
@@ -144,12 +146,35 @@ public partial class MainWindow : Window
                     SaveKind.World,
                     metadata.WorldName,
                     Path.GetFileName(path),
-                    raw);
+                    raw,
+                    metadata);
             }
 
             FileNameText.Text = _loadedSave.DisplayName;
             FileDetailsText.Text = $"{_loadedSave.Kind} save  |  {FormatByteSize(_loadedSave.Data.Length)}  |  {_loadedSave.FileName}";
             StatusText.Text = $"{_loadedSave.Kind} save ready";
+
+            if (_loadedSave.Kind == SaveKind.World)
+            {
+                ServerOptionsPanel.IsVisible = true;
+                if (_loadedSave.WorldMetadata?.IsDedicatedServer == true || _loadedSave.WorldMetadata?.HasPassword == true)
+                {
+                    ConvertServerSaveCheckBox.IsChecked = true;
+                    ServerOptionsPanel.BorderBrush = Avalonia.Media.Brush.Parse("#E5C95C");
+                    ServerOptionsDetailsText.Text = "Detected dedicated server configuration (Password / Multiplayer mode). Converting to local solo world is recommended.";
+                }
+                else
+                {
+                    ConvertServerSaveCheckBox.IsChecked = false;
+                    ServerOptionsPanel.BorderBrush = Avalonia.Media.Brush.Parse("#484439");
+                    ServerOptionsDetailsText.Text = "Removes server password, switches session to Solo offline, and repairs download truncation.";
+                }
+            }
+            else
+            {
+                ServerOptionsPanel.IsVisible = false;
+                ConvertServerSaveCheckBox.IsChecked = false;
+            }
         });
 
         PopulateDestinations();
@@ -190,7 +215,12 @@ public partial class MainWindow : Window
 
         await RunBusyAsync("Converting save...", async () =>
         {
-            var wrapped = await Task.Run(() => DragonwildsSaveCodec.Wrap(loadedSave.Data));
+            var rawData = loadedSave.Data;
+            if (ConvertServerSaveCheckBox.IsChecked == true)
+            {
+                rawData = DragonwildsSaveCodec.ConvertToLocalSession(rawData);
+            }
+            var wrapped = await Task.Run(() => DragonwildsSaveCodec.Wrap(rawData));
             await File.WriteAllBytesAsync(destinationPath, wrapped);
             StatusText.Text = $"Exported {Path.GetFileName(destinationPath)}";
         });
@@ -323,12 +353,14 @@ public partial class MainWindow : Window
 
         await RunBusyAsync($"Importing {saveType}...", async () =>
         {
+            var convertServer = ConvertServerSaveCheckBox.IsChecked == true;
             var result = await Task.Run(() => loadedSave.Kind switch
             {
                 SaveKind.World => new WgsImporter().ReplaceWorld(
                     profileChoice.Profile.Path,
                     destination.FileName,
-                    loadedSave.Data),
+                    loadedSave.Data,
+                    convertToLocalSession: convertServer),
                 SaveKind.Character => new WgsImporter().ReplaceCharacter(
                     profileChoice.Profile.Path,
                     destination.FileName,
@@ -375,6 +407,7 @@ public partial class MainWindow : Window
         RefreshProfilesButton.IsEnabled = !busy;
         ProfilePicker.IsEnabled = !busy;
         DestinationPicker.IsEnabled = !busy;
+        ConvertServerSaveCheckBox.IsEnabled = !busy;
 
         if (busy)
         {
@@ -421,7 +454,8 @@ public partial class MainWindow : Window
         SaveKind Kind,
         string DisplayName,
         string FileName,
-        byte[] Data);
+        byte[] Data,
+        DragonwildsSaveMetadata? WorldMetadata = null);
 
     private sealed record DestinationChoice(
         SaveKind Kind,

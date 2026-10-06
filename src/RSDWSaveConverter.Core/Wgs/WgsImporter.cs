@@ -43,19 +43,24 @@ public sealed class WgsImporter
         string profilePath,
         string destinationFileName,
         ReadOnlySpan<byte> rawSave,
-        string? backupRoot = null)
+        string? backupRoot = null,
+        bool convertToLocalSession = false)
     {
         if (!destinationFileName.EndsWith("Qxav", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("The selected destination is not a Game Pass world slot.");
         }
 
-        var metadata = DragonwildsSaveCodec.ReadMetadata(rawSave);
-        var wrapped = DragonwildsSaveCodec.Wrap(rawSave);
+        var preparedRaw = convertToLocalSession
+            ? DragonwildsSaveCodec.ConvertToLocalSession(rawSave)
+            : rawSave.ToArray();
+
+        var metadata = DragonwildsSaveCodec.ReadMetadata(preparedRaw);
+        var wrapped = DragonwildsSaveCodec.Wrap(preparedRaw);
         return ReplaceSave(
             profilePath,
             destinationFileName,
-            rawSave.ToArray(),
+            preparedRaw,
             wrapped,
             static data => DragonwildsSaveCodec.Unwrap(data),
             metadata.WorldName,

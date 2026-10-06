@@ -2,6 +2,16 @@
 
 All notable changes to RSDW Save Converter are documented here.
 
+## 0.3.0 - 2026-10-06
+
+### Added
+
+- **Dedicated Server to Local Conversion**: Added dedicated server conversion support for world saves (`.sav`) exported from dedicated hosts (such as Nitrado, G-Portal, or Linux/Windows headless servers).
+- **Auto-Detection**: Automatically detects server saves with active session passwords or multiplayer privacy modes and suggests local solo conversion in the UI.
+- **Session Privacy & Password Removal**: Clears the server password (`SessionPasswd`) and sets `SessionPrivacy` to 0 (Solo offline) to prevent games from getting stuck on "Uniéndose..." / "Joining...".
+- **Download Truncation Repair**: Automatically detects and repairs incomplete file downloads (such as FTP EOF cutoff in `LVLS`/`DATS` level chunks), ensuring save files deserialize properly without corrupting world loading.
+- **Interactive UI Checkbox**: Added a dedicated server options toggle panel in the UI when a world save is loaded, allowing one-click conversion on import or `.xav` export.
+
 ## 0.2.0 - 2026-10-06
 
 ### Added

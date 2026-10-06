@@ -14,6 +14,7 @@ The application runs entirely locally, makes no network requests, and generates 
 | Source | Game Pass Destination | Conversion |
 | :--- | :--- | :--- |
 | Steam world `.sav` | Existing `Qxav` world slot | Adds the 12-byte Game Pass header and zlib compression |
+| Dedicated Server `.sav` (Nitrado, etc.) | Existing `Qxav` world slot | Clears server password, switches session to Solo, fixes download truncation, and wraps |
 | Game Pass world `.xav` | Existing `Qxav` world slot | Validates and reimports the wrapped world |
 | Steam character `.json` | Existing `Qjson` character slot | Validates JSON schema and preserves UTF-8 bytes exactly |
 
@@ -80,8 +81,29 @@ You can run this application on a Mac (or any machine that does not have the gam
 
 ---
 
+## Dedicated Server Conversion (Nitrado, G-Portal, VPS)
+
+When transferring a world save from a dedicated server to local Game Pass, the game can get stuck infinitely on **"Joining..." / "Uniéndose..."** for several reasons:
+- **Server Password**: The server save has an embedded `SessionPasswd`. Because the local Game Pass menu never prompts for a password, connection handshakes stall indefinitely.
+- **Multiplayer Mode**: `SessionPrivacy` is flagged for dedicated servers (`3`). The client attempts to connect to a remote server rather than running a local session.
+- **FTP Download Truncation**: File transfers sometimes cut off the final byte of the level stream (`LVLS`/`DATS`), causing the game to crash or hang on unexpected EOF.
+- **Separate Character Saves**: On a dedicated server, characters are saved in `RSDragonwilds/Saved/SaveCharacters/<CharacterName>.json`, while `.sav` contains only the world terrain and structures.
+
+### Recommended Workflow for Server Migrations:
+1. **World**: Download your `.sav` from `RSDragonwilds/Saved/SaveGames/` on your server.
+2. **Character**: Download your character `.json` from `RSDragonwilds/Saved/SaveCharacters/` on your server.
+3. Open **RSDW Save Converter** and drop your `.sav` file.
+4. The tool automatically detects server metadata and activates:
+   > **☑ Convert dedicated server save to local (remove password, set Solo mode)**
+   *(This strips the password, resets privacy to offline Solo, and repairs any missing EOF padding).*
+5. Select your target world slot and click **Import World**.
+6. Drop your `.json` file, select your character slot, and click **Import Character** to restore your gear, inventory, and skills.
+
+---
+
 ## Safety & Backups
 
+- **Dedicated Server Auto-Conversion**: Dedicated server saves (such as from Nitrado or dedicated Linux/Windows hosts) with passwords, multiplayer privacy modes, or FTP EOF truncation are automatically detected and converted into local solo offline saves.
 - **Process Guard**: Import is blocked if *RuneScape: Dragonwilds* (`RSDragonwilds` or `Dominion`) is detected running (automatically verified on Windows).
 - **Automatic Backups**: A full `.zip` snapshot of the WGS profile is saved before any changes are made:
   - **Windows**: `%LOCALAPPDATA%\RSDWSaveConverter\Backups`
@@ -94,13 +116,13 @@ You can run this application on a Mac (or any machine that does not have the gam
 
 ## Download Pre-built Executables
 
-Pre-compiled, standalone binaries are available on the [**GitHub Releases page (v0.2.0)**](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.2.0):
+Pre-compiled, standalone binaries are available on the [**GitHub Releases page (v0.3.0)**](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.3.0):
 
 | Platform / Architecture | Package | Description |
 | :--- | :--- | :--- |
-| **macOS Apple Silicon** (M1, M2, M3, M4) | [`RSDWSaveConverter-v0.2.0-osx-arm64.tar.gz`](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.2.0) | Standalone native app for modern Macs |
-| **macOS Intel** (x64) | [`RSDWSaveConverter-v0.2.0-osx-x64.tar.gz`](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.2.0) | Standalone native app for Intel Macs |
-| **Windows** (x64) | [`RSDWSaveConverter-v0.2.0-win-x64.zip`](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.2.0) | Standalone portable executable (`.exe`) |
+| **macOS Apple Silicon** (M1, M2, M3, M4) | [`RSDWSaveConverter-v0.3.0-osx-arm64.tar.gz`](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.3.0) | Standalone native app for modern Macs |
+| **macOS Intel** (x64) | [`RSDWSaveConverter-v0.3.0-osx-x64.tar.gz`](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.3.0) | Standalone native app for Intel Macs |
+| **Windows** (x64) | [`RSDWSaveConverter-v0.3.0-win-x64.zip`](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.3.0) | Standalone portable executable (`.exe`) |
 
 Each release package includes SHA-256 verification manifests.
 
@@ -110,10 +132,10 @@ Each release package includes SHA-256 verification manifests.
 
 ### Option 1: Using the Pre-built Release (Recommended — No .NET required)
 
-1. **Download**: Grab `RSDWSaveConverter-v0.2.0-osx-arm64.tar.gz` (for Apple Silicon M1/M2/M3/M4) or `osx-x64.tar.gz` (for Intel) from [Releases](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.2.0).
+1. **Download**: Grab `RSDWSaveConverter-v0.3.0-osx-arm64.tar.gz` (for Apple Silicon M1/M2/M3/M4) or `osx-x64.tar.gz` (for Intel) from [Releases](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.3.0).
 2. **Extract**: Double-click the downloaded `.tar.gz` in Finder, or run in Terminal:
    ```bash
-   tar -xzf RSDWSaveConverter-v0.2.0-osx-arm64.tar.gz
+   tar -xzf RSDWSaveConverter-v0.3.0-osx-arm64.tar.gz
    cd osx-arm64
    ```
 3. **Handle macOS Gatekeeper (Unsigned Binary)**:

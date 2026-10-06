@@ -2,13 +2,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="RSDWSaveConverter.App.MainWindow"
         Title="RSDW Save Converter"
-        Width="820" Height="630"
-        MinWidth="760" MinHeight="580"
+        Width="820"        Height="660"
+        MinWidth="760" MinHeight="600"
         WindowStartupLocation="CenterScreen"
         Background="#101113"
         Foreground="#F0EEE8">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,Auto" Margin="28,24,28,20">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto" Margin="28,24,28,20">
         <!-- Title Panel (Row 0) -->
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <TextBlock Text="RSDW SAVE CONVERTER"
@@ -30,7 +30,7 @@
                 BorderThickness="1"
                 CornerRadius="3"
                 Padding="22"
-                Margin="0,0,0,18"
+                Margin="0,0,0,16"
                 DragDrop.AllowDrop="True">
             <Grid ColumnDefinitions="*,180" RowDefinitions="Auto,Auto">
                 <TextBlock Grid.Row="0" Grid.Column="0"
@@ -73,8 +73,34 @@
             </Grid>
         </Border>
 
-        <!-- Section Header (Row 2) -->
-        <TextBlock Grid.Row="2"
+        <!-- Dedicated Server Conversion Options (Row 2) -->
+        <Border Grid.Row="2"
+                Name="ServerOptionsPanel"
+                Background="#191A1D"
+                BorderBrush="#484439"
+                BorderThickness="1"
+                CornerRadius="3"
+                Padding="16,12"
+                Margin="0,0,0,16"
+                IsVisible="False">
+            <StackPanel Spacing="3">
+                <CheckBox Name="ConvertServerSaveCheckBox"
+                          Content="Convert dedicated server save to local (remove password, set Solo mode)"
+                          Foreground="#F0EEE8"
+                          FontWeight="SemiBold"
+                          FontSize="12"
+                          IsChecked="True" />
+                <TextBlock Name="ServerOptionsDetailsText"
+                           Text="Removes the server password, switches session to Solo offline, and repairs download truncation."
+                           FontSize="11"
+                           Foreground="#ACAAB3"
+                           Margin="28,-2,0,0"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <!-- Section Header (Row 3) -->
+        <TextBlock Grid.Row="3"
                    Text="GAME PASS DESTINATION"
                    FontSize="10"
                    FontWeight="Bold"
@@ -82,8 +108,8 @@
                    Margin="0,0,0,8"
                    LetterSpacing="0.5" />
 
-        <!-- Destination Setup (Row 3) -->
-        <StackPanel Grid.Row="3" Spacing="6">
+        <!-- Destination Setup (Row 4) -->
+        <StackPanel Grid.Row="4" Spacing="6">
             <!-- Profile Row Header -->
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0"
@@ -146,8 +172,8 @@
                       Height="36" />
         </StackPanel>
 
-        <!-- Import Button (Row 4) -->
-        <Button Grid.Row="4"
+        <!-- Import Button (Row 5) -->
+        <Button Grid.Row="5"
                 Name="ImportButton"
                 Content="Import Save"
                 HorizontalAlignment="Stretch"
@@ -162,8 +188,8 @@
                 Margin="0,14,0,12"
                 IsEnabled="False" />
 
-        <!-- Status & Progress Row (Row 5) -->
-        <Grid Grid.Row="5" ColumnDefinitions="*,150">
+        <!-- Status & Progress Row (Row 6) -->
+        <Grid Grid.Row="6" ColumnDefinitions="*,150">
             <TextBlock Grid.Column="0"
                        Name="StatusText"
                        Text="Ready"
