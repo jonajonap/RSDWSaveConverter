@@ -19,8 +19,11 @@ if ($null -eq $versionNode -or [string]::IsNullOrWhiteSpace($versionNode.InnerTe
 }
 
 $version = $versionNode.InnerText.Trim()
+$isWindows = $Runtime.StartsWith("win-")
+$exeSuffix = if ($isWindows) { ".exe" } else { "" }
+$binaryName = "RSDWSaveConverter$exeSuffix"
 $releaseStem = "RSDWSaveConverter-v$version-$Runtime"
-$portableExe = Join-Path $artifactsRoot "$releaseStem.exe"
+$portableBinary = Join-Path $artifactsRoot "$releaseStem$exeSuffix"
 $archive = Join-Path $artifactsRoot "$releaseStem.zip"
 $checksum = Join-Path $artifactsRoot "$releaseStem.sha256"
 
@@ -34,7 +37,7 @@ if (Test-Path -LiteralPath $resolvedOutput) {
     Remove-Item -LiteralPath $resolvedOutput -Recurse -Force
 }
 
-foreach ($releaseFile in @($portableExe, $archive, $checksum)) {
+foreach ($releaseFile in @($portableBinary, $archive, $checksum)) {
     if (Test-Path -LiteralPath $releaseFile) {
         Remove-Item -LiteralPath $releaseFile -Force
     }
@@ -51,6 +54,9 @@ dotnet publish $projectPath `
     --configuration $Configuration `
     --runtime $Runtime `
     --self-contained true `
+    -p:PublishSingleFile=true `
+    -p:IncludeNativeLibrariesForSelfExtract=true `
+    -p:EnableCompressionInSingleFile=true `
     --output $output
 if ($LASTEXITCODE -ne 0) {
     throw "Publish failed."
@@ -60,17 +66,24 @@ foreach ($document in @("README.md", "CHANGELOG.md", "THIRD_PARTY_NOTICES.md")) 
     Copy-Item -LiteralPath (Join-Path $repoRoot $document) -Destination (Join-Path $output $document)
 }
 
-$publishedExe = Join-Path $output "RSDWSaveConverter.exe"
-Copy-Item -LiteralPath $publishedExe -Destination $portableExe
+$publishedBinary = Join-Path $output $binaryName
+if (Test-Path -LiteralPath $publishedBinary) {
+    Copy-Item -LiteralPath $publishedBinary -Destination $portableBinary
+}
 Compress-Archive -Path (Join-Path $output "*") -DestinationPath $archive -CompressionLevel Optimal
 
-$hashLines = foreach ($releaseFile in @($portableExe, $archive)) {
+$filesToHash = @($archive)
+if (Test-Path -LiteralPath $portableBinary) {
+    $filesToHash = @($portableBinary, $archive)
+}
+
+$hashLines = foreach ($releaseFile in $filesToHash) {
     $hash = Get-FileHash -LiteralPath $releaseFile -Algorithm SHA256
     "{0}  {1}" -f $hash.Hash.ToLowerInvariant(), (Split-Path -Leaf $releaseFile)
 }
 [System.IO.File]::WriteAllLines($checksum, $hashLines, [System.Text.UTF8Encoding]::new($false))
 
-Write-Host "Published release $version"
-Get-Item -LiteralPath $portableExe, $archive, $checksum |
+Write-Host "Published release $version for $Runtime"
+Get-Item -LiteralPath ($filesToHash + @($checksum)) |
     Select-Object Name, Length, FullName |
     Format-Table -AutoSize

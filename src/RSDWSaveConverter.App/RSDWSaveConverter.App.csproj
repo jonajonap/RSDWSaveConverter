@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\RSDWSaveConverter.Core\RSDWSaveConverter.Core.csproj" />
@@ -6,14 +6,13 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>RSDWSaveConverter</AssemblyName>
     <AssemblyTitle>RSDW Save Converter</AssemblyTitle>
     <RootNamespace>RSDWSaveConverter.App</RootNamespace>
-    <ApplicationIcon>Assets\RSDWSaveConverter.ico</ApplicationIcon>
+    <ApplicationIcon Condition="'$(OS)' == 'Windows_NT'">Assets\RSDWSaveConverter.ico</ApplicationIcon>
     <Product>RSDW Save Converter</Product>
     <Description>Portable RuneScape: Dragonwilds save importer for Xbox Game Pass.</Description>
     <Authors>RSDW</Authors>
@@ -22,12 +21,18 @@
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
     <FileVersion>0.1.0.0</FileVersion>
     <InformationalVersion>0.1.0</InformationalVersion>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <SelfContained>true</SelfContained>
-    <PublishSingleFile>true</PublishSingleFile>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <PublishTrimmed>false</PublishTrimmed>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.5" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.5" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.5" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.5" />
+  </ItemGroup>
 
 </Project>

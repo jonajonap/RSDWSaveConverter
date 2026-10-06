@@ -1,0 +1,45 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="RSDWSaveConverter.App.MessageDialog"
+        Width="480" SizeToContent="Height"
+        MinWidth="420" MaxWidth="580"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Background="#191A1D"
+        Foreground="#F0EEE8">
+    <Border BorderBrush="#484439" BorderThickness="1" Padding="24">
+        <StackPanel Spacing="16">
+            <TextBlock Name="TitleText"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Foreground="#E5C95C" />
+            <SelectableTextBlock Name="MessageText"
+                                 FontSize="12"
+                                 Foreground="#F0EEE8"
+                                 TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Spacing="12"
+                        Margin="0,8,0,0">
+                <Button Name="CancelButton"
+                        Content="Cancel"
+                        Width="90"
+                        Height="32"
+                        HorizontalContentAlignment="Center"
+                        Background="#101113"
+                        BorderBrush="#484439"
+                        Foreground="#ACAAB3"
+                        Cursor="Hand" />
+                <Button Name="OkButton"
+                        Content="OK"
+                        Width="90"
+                        Height="32"
+                        HorizontalContentAlignment="Center"
+                        Background="#E5C95C"
+                        Foreground="#191710"
+                        FontWeight="Bold"
+                        Cursor="Hand" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

@@ -1,6 +1,6 @@
 # RSDW Save Converter
 
-RSDW Save Converter is a portable Windows utility for importing RuneScape: Dragonwilds Steam world and character saves into the Xbox Game Pass save container.
+RSDW Save Converter is a cross-platform utility (Windows, macOS, Linux) built with Avalonia UI for importing RuneScape: Dragonwilds Steam world and character saves into the Xbox Game Pass save container.
 
 The app runs locally, makes no network requests, and creates a complete backup before changing a Game Pass profile.
 
@@ -8,9 +8,10 @@ The app runs locally, makes no network requests, and creates a complete backup b
 
 Each GitHub release provides:
 
-- `RSDWSaveConverter-v*-win-x64.exe`: the standalone portable application.
-- `RSDWSaveConverter-v*-win-x64.zip`: the application plus README, changelog, and third-party notices.
-- `RSDWSaveConverter-v*-win-x64.sha256`: SHA-256 hashes for both downloads.
+- `RSDWSaveConverter-v*-win-x64.zip` / `.exe`: standalone Windows build.
+- `RSDWSaveConverter-v*-osx-arm64.tar.gz`: standalone Apple Silicon macOS build.
+- `RSDWSaveConverter-v*-osx-x64.tar.gz`: standalone Intel macOS build.
+- SHA-256 manifests for verifying download integrity.
 
 The executable is not currently code-signed, so Windows SmartScreen may show an unknown-publisher warning. Verify the SHA-256 hash against the release manifest before running it.
 
@@ -42,7 +43,7 @@ The automatic profile search checks:
 
 ## Safety
 
-- The game must be closed before an import can begin.
+- The game must be closed before an import can begin (verified automatically on Windows).
 - A ZIP of the complete WGS profile is written before any save data changes.
 - New payload and table files are written before `containers.index` is replaced.
 - The updated payload is read back and compared with the source; a failed verification restores the original index.
@@ -50,30 +51,37 @@ The automatic profile search checks:
 
 Backups are stored under:
 
-```text
-%LOCALAPPDATA%\RSDWSaveConverter\Backups
-```
+- Windows: `%LOCALAPPDATA%\RSDWSaveConverter\Backups`
+- macOS / Linux: `~/.local/share/RSDWSaveConverter/Backups`
 
 Keep the backup until the imported save has loaded, saved, and synchronized successfully. Character files may contain account or gameplay information; do not attach them to public bug reports.
 
 ## Known Limitations
 
-- Windows x64 only.
 - A matching Game Pass destination slot must already exist.
-- The executable is unsigned.
+- Executables are unsigned.
+- On macOS / Linux, the WGS profile folder must be chosen manually via **Choose Profile**.
 - Future game updates may require save-format updates.
 
 ## Build
 
 Requirements:
 
-- Windows 10 or later
+- Windows, macOS, or Linux
 - .NET 8 SDK
 
-Run the release script from PowerShell:
+Run the release script:
+
+On macOS / Linux (Bash):
+
+```bash
+./scripts/publish.sh Release osx-arm64
+```
+
+On Windows (PowerShell):
 
 ```powershell
-.\scripts\publish.ps1
+.\scripts\publish.ps1 -Configuration Release -Runtime win-x64
 ```
 
 It runs the test suite and creates the versioned EXE, ZIP, and SHA-256 manifest under `artifacts\`.

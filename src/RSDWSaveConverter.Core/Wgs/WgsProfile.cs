@@ -116,6 +116,11 @@ public sealed class WgsProfile
 
     public static IReadOnlyList<WgsProfile> Discover()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return [];
+        }
+
         var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         var wgsRoot = System.IO.Path.Combine(
             localAppData,

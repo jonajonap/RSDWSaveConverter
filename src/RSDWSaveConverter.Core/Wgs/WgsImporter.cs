@@ -11,18 +11,33 @@ public sealed record WgsImportResult(
 
 public sealed class WgsImporter
 {
-    public static bool IsDragonwildsRunning() => Process.GetProcesses().Any(process =>
+    public static bool IsDragonwildsRunning()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return false;
+        }
+
         try
         {
-            return process.ProcessName.Contains("RSDragonwilds", StringComparison.OrdinalIgnoreCase)
-                || process.ProcessName.Equals("Dominion", StringComparison.OrdinalIgnoreCase);
+            return Process.GetProcesses().Any(process =>
+            {
+                try
+                {
+                    return process.ProcessName.Contains("RSDragonwilds", StringComparison.OrdinalIgnoreCase)
+                        || process.ProcessName.Equals("Dominion", StringComparison.OrdinalIgnoreCase);
+                }
+                catch
+                {
+                    return false;
+                }
+            });
         }
         catch
         {
             return false;
         }
-    });
+    }
 
     public WgsImportResult ReplaceWorld(
         string profilePath,
@@ -198,7 +213,14 @@ public sealed class WgsImporter
                 stream.Flush(flushToDisk: true);
             }
 
-            File.Replace(temporary, destination, destinationBackupFileName: null, ignoreMetadataErrors: true);
+            try
+            {
+                File.Replace(temporary, destination, destinationBackupFileName: null, ignoreMetadataErrors: true);
+            }
+            catch (Exception) when (!OperatingSystem.IsWindows())
+            {
+                File.Move(temporary, destination, overwrite: true);
+            }
         }
         finally
         {
