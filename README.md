@@ -92,18 +92,57 @@ You can run this application on a Mac (or any machine that does not have the gam
 
 ---
 
-## Download
+## Download Pre-built Executables
 
-Releases provide standalone, self-contained packages:
+Pre-compiled, standalone binaries are available on the [**GitHub Releases page (v0.2.0)**](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.2.0):
 
-- `RSDWSaveConverter-v*-osx-arm64.tar.gz`: Native build for Apple Silicon Macs (M1, M2, M3, M4).
-- `RSDWSaveConverter-v*-osx-x64.tar.gz`: Native build for Intel Macs.
-- `RSDWSaveConverter-v*-win-x64.zip` / `.exe`: Standalone Windows build.
-- `*.sha256`: SHA-256 verification manifests.
+| Platform / Architecture | Package | Description |
+| :--- | :--- | :--- |
+| **macOS Apple Silicon** (M1, M2, M3, M4) | [`RSDWSaveConverter-v0.2.0-osx-arm64.tar.gz`](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.2.0) | Standalone native app for modern Macs |
+| **macOS Intel** (x64) | [`RSDWSaveConverter-v0.2.0-osx-x64.tar.gz`](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.2.0) | Standalone native app for Intel Macs |
+| **Windows** (x64) | [`RSDWSaveConverter-v0.2.0-win-x64.zip`](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.2.0) | Standalone portable executable (`.exe`) |
 
-*(Note: Binaries are unsigned; on macOS, you may need to right-click and choose "Open" or run `xattr -d com.apple.quarantine RSDWSaveConverter` if Gatekeeper displays a security prompt).*
+Each release package includes SHA-256 verification manifests.
 
 ---
+
+## How to Run on macOS
+
+### Option 1: Using the Pre-built Release (Recommended — No .NET required)
+
+1. **Download**: Grab `RSDWSaveConverter-v0.2.0-osx-arm64.tar.gz` (for Apple Silicon M1/M2/M3/M4) or `osx-x64.tar.gz` (for Intel) from [Releases](https://github.com/jonajonap/RSDWSaveConverter/releases/tag/v0.2.0).
+2. **Extract**: Double-click the downloaded `.tar.gz` in Finder, or run in Terminal:
+   ```bash
+   tar -xzf RSDWSaveConverter-v0.2.0-osx-arm64.tar.gz
+   cd osx-arm64
+   ```
+3. **Handle macOS Gatekeeper (Unsigned Binary)**:
+   Because the community binary is not Apple-notarized, macOS will prevent it from opening on the first try. You can approve it using either method:
+   - **Via Terminal (Quickest)**:
+     ```bash
+     xattr -d com.apple.quarantine RSDWSaveConverter
+     chmod +x RSDWSaveConverter
+     ```
+   - **Via Finder**: Right-click (or Control-click) `RSDWSaveConverter` -> select **Open** -> click **Open** in the confirmation dialog.
+4. **Launch**: Double-click `RSDWSaveConverter` in Finder or run:
+   ```bash
+   ./RSDWSaveConverter
+   ```
+
+### Option 2: Running from Source Code (.NET 8 SDK required)
+
+If you prefer compiling or running from source:
+
+1. **Install .NET 8 SDK**:
+   ```bash
+   brew install dotnet@8
+   ```
+2. **Clone and Run**:
+   ```bash
+   git clone https://github.com/jonajonap/RSDWSaveConverter.git
+   cd RSDWSaveConverter
+   dotnet run --project src/RSDWSaveConverter.App/RSDWSaveConverter.App.csproj
+   ```
 
 ## Building from Source
 

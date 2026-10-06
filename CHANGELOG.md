@@ -2,6 +2,16 @@
 
 All notable changes to RSDW Save Converter are documented here.
 
+## 0.2.0 - 2026-10-06
+
+### Added
+
+- Cross-platform port to Avalonia UI 11 running on .NET 8.
+- Native standalone executables for macOS Apple Silicon (`osx-arm64`), macOS Intel (`osx-x64`), and Windows (`win-x64`).
+- Cross-platform packaging script (`scripts/publish.sh`) with automatic SHA-256 generation.
+- Safe process detection and atomic file replacement fallbacks for Unix / POSIX filesystems.
+- Native storage pickers for macOS and Windows, with original dark and gold aesthetic preserved.
+
 ## 0.1.0 - 2026-09-22
 
 ### Added
